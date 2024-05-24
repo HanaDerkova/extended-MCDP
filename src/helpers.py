@@ -76,26 +76,34 @@ def generate_matrix(parameters, architecture, number_of_states, k=None, l=None):
         for i in range(1, number_of_states - 2):
             x = parameters[i]
             prob_of_self_looping = np.exp(x) / (np.exp(x) + np.exp(0))
-            matrix[i][i] = prob_of_self_looping
+            matrix[i][i] = prob_of_self_looping # set the diagonal whis is slucka to param[i]
             matrix[i][i + 1] = np.exp(0) / (np.exp(x) + np.exp(0))
+        #do first and last state separately: davaj dost pozor ako tam mas upratane tie parametre
         i = number_of_states - 3
+        # transition_prob_parameter = parameters[0]
+        # escaping_prob_parameter = parameters[i + 1]
+        # self_looping_parameter = 0
         transition_prob_parameter = parameters[0]
         escaping_prob_parameter = 0
+        #sum = np.exp(transition_prob_parameter) + np.exp(escaping_prob_parameter) + np.exp(self_looping_parameter)
         sum = np.exp(transition_prob_parameter) + np.exp(escaping_prob_parameter)
+        #prob_self_looping = np.exp(self_looping_parameter) / sum
         prob_trasnition = np.exp(transition_prob_parameter) / sum
         prob_escaping = np.exp(escaping_prob_parameter) / sum
+        #matrix[0][0] = prob_self_looping
         matrix[0][1] = prob_trasnition
         matrix[0][escape_state] = prob_escaping
         # last state
         last_transient_st = number_of_states - 2
+        #x = parameters[i + 2]
         x = parameters[i+1]
         prob_of_self_looping = np.exp(x) / (np.exp(x) + np.exp(0))
-        matrix[last_transient_st][last_transient_st] = prob_of_self_looping 
+        matrix[last_transient_st][last_transient_st] = prob_of_self_looping # set the diagonal whis is slucka to param[i]
         matrix[last_transient_st][0] = np.exp(0) / (np.exp(x) + np.exp(0))
     elif architecture == "k-jumps":
        matrix = np.zeros((number_of_states,number_of_states))
        param_counter = 0
-       for i in range(number_of_states - 1):
+       for i in range(number_of_states - 2):
         if i % k != 0 or i == 0 or i < l :
             transition_prob_parameter = parameters[param_counter]
             escaping_prob_parameter = parameters[param_counter + 1]
@@ -123,6 +131,26 @@ def generate_matrix(parameters, architecture, number_of_states, k=None, l=None):
             matrix[i][i + 1] = prob_trasnition
             matrix[i][i - l] = prob_back_loop
             param_counter += 3
+       if i % k != 0 or i == 0 or i < l :
+            transition_prob_parameter = parameters[param_counter]
+            self_looping_parameter = 0
+            sum = np.exp(transition_prob_parameter) + np.exp(self_looping_parameter)
+            prob_self_looping = np.exp(self_looping_parameter) / sum
+            prob_trasnition = np.exp(transition_prob_parameter) / sum
+            matrix[number_of_states - 2][number_of_states - 2] = prob_self_looping
+            matrix[number_of_states - 2][number_of_states - 1] = prob_trasnition
+       else:
+            transition_prob_parameter = parameters[param_counter]
+            self_looping_parameter = 0
+            back_loop_param = parameters[param_counter + 1]
+            sum = np.exp(transition_prob_parameter)  + np.exp(self_looping_parameter) + np.exp(back_loop_param)
+            prob_self_looping = np.exp(self_looping_parameter) / sum
+            prob_trasnition = np.exp(transition_prob_parameter) / sum
+            prob_back_loop = np.exp(back_loop_param) / sum
+            matrix[number_of_states - 2][number_of_states - 2] = prob_self_looping
+            matrix[number_of_states - 2][number_of_states - 1] = prob_trasnition
+            matrix[number_of_states - 2][number_of_states - 2 - l] = prob_back_loop
+
        
     else:
         raise ValueError("Invalid architecture")
