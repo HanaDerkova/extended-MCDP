@@ -2,7 +2,7 @@
 
 ## Modifications
 
-This project is based on a modified version of the program available at [https://github.com/fmfi-compbio/mc-overlaps/tree/master](https://github.com/fmfi-compbio/mc-overlaps/tree/master).
+This project is based on a modified version of the program available at [https://github.com/fmfi-compbio/mc-overlaps](https://github.com/fmfi-compbio/mc-overlaps).
 
 
 ## Installation
